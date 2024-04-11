@@ -1,4 +1,5 @@
 import { IsEmail } from "class-validator";
+import { Subject } from "src/subjects/entities/subject.entity";
 import { Column, Entity, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
 
 @Entity('users')
@@ -21,25 +22,24 @@ export class User {
     @Column('text')
     fullName: string;
 
-    @Column('bool', {
-        default: true
-    })
-    isActive: boolean;
-
     @Column('text', {
         array: true,
-        default: ['user']
+        default: ['ADMIN_ROLE']
     })
     roles: string[];
 
     // In case you need to add a relationship with another entity
     // Don't forget to import the entity and add the relationship on the other entity
 
-    // @OneToMany(
-    //     () => Product,
-    //     product => product.user
-    // )
-    // product: Product;
+    @OneToMany(
+        () => Subject,
+        subject => subject.user,
+        {
+            eager: true,
+            cascade: true
+        }
+    )
+    subject: Subject[];
 
     @BeforeInsert()
     checkFieldBeforeInsert(){
