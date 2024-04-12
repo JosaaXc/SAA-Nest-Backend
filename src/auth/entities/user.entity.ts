@@ -35,7 +35,6 @@ export class User {
         () => Subject,
         subject => subject.user,
         {
-            eager: true,
             cascade: true
         }
     )

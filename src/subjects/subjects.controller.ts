@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import { CreateSubjectDto } from './dto/create-subject.dto';
 import { UpdateSubjectDto } from './dto/update-subject.dto';
@@ -23,18 +23,29 @@ export class SubjectsController {
     return this.subjectsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.subjectsService.findOne(+id);
+  @Get('own-subjects')
+  @Auth()
+  findMany(
+    @GetUser() user: User
+  ) {
+    return this.subjectsService.findManyByUser(user.id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSubjectDto: UpdateSubjectDto) {
-    return this.subjectsService.update(+id, updateSubjectDto);
+  @Auth()
+  update(
+    @Param('id', ParseUUIDPipe ) id: string, 
+    @Body() updateSubjectDto: UpdateSubjectDto,
+    @GetUser() user: User
+  ) {
+    return this.subjectsService.update(id, user, updateSubjectDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.subjectsService.remove(+id);
+  @Auth()
+  remove(
+    @Param('id') id: string
+  ) {
+    return this.subjectsService.remove(id);
   }
 }

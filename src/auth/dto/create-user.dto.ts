@@ -7,7 +7,7 @@ export class CreateUserDto {
 
     @IsString()
     @MinLength(6)
-    @MaxLength(50)
+    @MaxLength(18)
     @Matches(
         /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
         message: 'The password must have a Uppercase, lowercase letter and a number'
@@ -16,6 +16,7 @@ export class CreateUserDto {
 
     @IsString()
     @MinLength(3)
+    @MaxLength(30)
     fullName: string;
 
 }

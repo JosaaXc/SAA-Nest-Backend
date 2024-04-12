@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { CreateSubjectDto } from './dto/create-subject.dto';
 import { UpdateSubjectDto } from './dto/update-subject.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -33,19 +33,45 @@ export class SubjectsService {
   }
 
   findAll() {
-    return `This action returns all subjects`;
+    return this.subjectRepository.find()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} subject`;
+  findManyByUser(userId: string) {
+    // return all the subjects that belong to the user
+    try {
+      return this.subjectRepository.createQueryBuilder('subject')
+        .innerJoin('subject.user', 'user')
+        .where('user.id = :userId', { userId })
+        .getMany();
+    } catch (error) {
+      this.handleDBError(error);
+    }
   }
 
-  update(id: number, updateSubjectDto: UpdateSubjectDto) {
-    return `This action updates a #${id} subject`;
+  async update(id: string, user: User, updateSubjectDto: UpdateSubjectDto) {
+    const subject = await this.subjectRepository.findOne({ where: {id }})
+
+    if(!subject){
+      throw new BadRequestException('Subject not found');
+    }
+
+    if( subject.user.id !== user.id ){
+      throw new UnauthorizedException('You cannot update this subject');
+    }
+
+    this.subjectRepository.merge(subject, updateSubjectDto);
+
+    try{
+      await this.subjectRepository.save(subject);
+      return subject;
+    }catch(error){
+      this.handleDBError(error);
+    }
+
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} subject`;
+  remove(id: string) {
+    return this.subjectRepository.delete({ id });
   }
   
   private handleDBError(error: any): never {

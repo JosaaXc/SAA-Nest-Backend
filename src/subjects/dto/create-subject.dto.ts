@@ -1,10 +1,11 @@
-import { IsArray, IsIn, IsString, MinLength } from "class-validator";
+import { IsArray, IsIn, IsString, MaxLength, MinLength } from "class-validator";
 import { IsInArray } from "../decorators/is-in-array.decorator";
 
 export class CreateSubjectDto {
 
     @IsString()
     @MinLength(3)
+    @MaxLength(30)
     name: string;
 
     @IsString()
