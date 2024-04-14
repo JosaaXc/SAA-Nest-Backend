@@ -1,4 +1,5 @@
-import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEmail, IsEnum, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
+import { ValidRoles } from "../interfaces";
 
 export class CreateUserDto {
   
@@ -19,4 +20,9 @@ export class CreateUserDto {
     @MaxLength(30)
     fullName: string;
 
+    @IsArray()
+    @ArrayNotEmpty()
+    @IsOptional()
+    @IsEnum(ValidRoles, { each: true })
+    roles: string[];
 }
