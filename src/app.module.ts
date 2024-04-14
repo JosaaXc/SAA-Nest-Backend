@@ -7,6 +7,7 @@ import { SubjectsModule } from './subjects/subjects.module';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { StudentsModule } from './students/students.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { JwtModule } from '@nestjs/jwt';
     CommonModule,
     AuthModule,
     SubjectsModule,
+    StudentsModule,
   ],
 })
 export class AppModule {}
