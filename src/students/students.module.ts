@@ -12,7 +12,7 @@ import { Student } from './entities/student.entity';
     AuthModule, 
     TypeOrmModule.forFeature([
       Student
-    ])
+    ]),
   ],
   exports: [TypeOrmModule, StudentsService]
 })
