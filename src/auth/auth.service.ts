@@ -4,10 +4,11 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto, LoginUserDto } from './dto';
+import { CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions, TokenExpiredError } from '@nestjs/jwt';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly emailService: EmailService
   ){}
 
   async create(createAuthDto: CreateUserDto) {
@@ -61,11 +63,55 @@ export class AuthService {
 
   }
 
-  private getJwtToken( payload: JwtPayload ){
+  async forgotPassword({ email }: EmailToChangePasswordDto ){
 
-    const token = this.jwtService.sign(payload);
-    return token;
+    const user = await this.userRepository.findOne({ where: { email } });
+      if(!user) 
+        throw new BadRequestException(`User with email ${ email } not found`);
 
+    try {
+  
+      const token = this.getJwtToken({ id: user.id }, { expiresIn: '10m' });
+      await this.emailService.sendEmailForgotPassword(user, token);
+
+      return { message: 'Email sent successfully' };
+
+    } catch (error) {
+      this.handleDBError(error);
+    }
+
+  }
+
+  async resetPasswordToken(token: string, resetPasswordDto: ResetPasswordDto) {
+    const { password } = resetPasswordDto;
+
+    let payload: JwtPayload ;
+    try {
+        payload = this.jwtService.verify(token) as JwtPayload;
+    } catch (error) {
+        this.handleDBError(error);
+    }
+
+    const { id } = payload;
+
+    const user = await this.userRepository.findOne({ where: { id } });
+    if(!user) 
+      this.handleDBError(new BadRequestException('User not found'));
+
+    try {
+        await this.userRepository.update(id, {
+            password: await bcrypt.hash(password, 10)
+        });
+
+        return { message: 'Password updated successfully' };
+
+    } catch (error) {
+        this.handleDBError(error);
+    }
+}
+
+  private getJwtToken(payload: JwtPayload, options?: JwtSignOptions) {
+    return this.jwtService.sign(payload, options);
   }
 
   async getUsers() {
@@ -99,6 +145,9 @@ export class AuthService {
     if( error.code === '23505') {
       throw new BadRequestException( error.detail )
     }
+    if (error instanceof TokenExpiredError) {
+      throw new UnauthorizedException('Token has expired');
+  }
 
     console.log(error);
     throw new InternalServerErrorException('Something went wrong');

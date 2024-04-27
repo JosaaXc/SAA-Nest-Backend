@@ -1,12 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetMetadata } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto, LoginUserDto } from './dto';
-import { AuthGuard } from '@nestjs/passport';
-import { User } from './entities/user.entity';
-import { Auth, GetUser, RawHeaders } from './decorators';
-import { UserRoleGuard } from './guards/user-role/user-role.guard';
-import { RoleProtected } from './decorators/role-protected.decorator';
-import { ValidRoles } from './interfaces';
+import { CreateUserDto, LoginUserDto, EmailToChangePasswordDto, ResetPasswordDto } from './dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 
@@ -24,17 +18,22 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
-  // @Get('example')
-  // @Auth(ValidRoles.admin) // use this to protect the route
-  // // @Auth() // use this to protect the route but without any role
-  // privateRoute3(
-  //   @GetUser() user: User
-  // ){
-  //   return {
-  //     message: 'This is a private route',
-  //     user
-  //   }
-  // }
+  @Post('forgot-password')
+  forgotPassword(
+    @Body() email: EmailToChangePasswordDto
+  ) {
+    return this.authService.forgotPassword(email);
+  }
+
+
+  @Post('reset-password/:token')
+  public async resetPasswordToken(
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @Param('token') token: string
+    ) {
+    console.log(token);
+    return await this.authService.resetPasswordToken(token,resetPasswordDto);
+  }
 
   @Get('users')
   getUsers() {
