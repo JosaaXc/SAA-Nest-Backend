@@ -9,6 +9,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { StudentsModule } from './students/students.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
+import { AttendancesModule } from './attendances/attendances.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
     SubjectsModule,
     StudentsModule,
     EnrollmentsModule,
+    AttendancesModule,
   ],
 })
 export class AppModule {}

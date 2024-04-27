@@ -1,7 +1,8 @@
+import { Attendance } from "src/attendances/entities/attendance.entity";
 import { User } from "src/auth/entities/user.entity";
 import { Student } from "src/students/entities/student.entity";
 import { Subject } from "src/subjects/entities/subject.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity({ name: 'enrollments' })
 @Unique(['studentId', 'subjectId'])
