@@ -23,7 +23,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
           },
         },
         defaults: {
-          from: `No reply <${ config.get('EMAIL_USER') }>}`
+          from: `No responder <${ config.get('EMAIL_USER') }>`
         },
         template: {
           dir: join(__dirname, 'templates'),
