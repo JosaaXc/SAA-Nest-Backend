@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import { CreateSubjectDto } from './dto/create-subject.dto';
 import { UpdateSubjectDto } from './dto/update-subject.dto';
-import { Auth, GetUser } from 'src/auth/decorators';
-import { User } from 'src/auth/entities/user.entity';
+import { Auth, GetUser } from '../auth/decorators';
+import { User } from '../auth/entities/user.entity';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('subjects')
 export class SubjectsController {
@@ -19,8 +20,17 @@ export class SubjectsController {
   }
 
   @Get()
-  findAll() {
-    return this.subjectsService.findAll();
+  findAll(
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.subjectsService.findAll( paginationDto );
+  }
+
+  @Get(':id')
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.subjectsService.findOne(id);
   }
 
   @Get('own-subjects')
