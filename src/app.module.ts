@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { StudentsModule } from './students/students.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { AttendancesModule } from './attendances/attendances.module';
+import { PartialModule } from './partial/partial.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AttendancesModule } from './attendances/attendances.module';
     StudentsModule,
     EnrollmentsModule,
     AttendancesModule,
+    PartialModule,
   ],
 })
 export class AppModule {}
