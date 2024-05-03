@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from './entities/student.entity';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { handleDBError } from '../common/errors/handleDBError.errors';
 
 @Injectable()
 export class StudentsService {
@@ -18,7 +19,7 @@ export class StudentsService {
     const student = this.studentRepository.create(createStudentDto);
     
     return this.studentRepository.save(student)
-      .catch( error => this.handleDBError(error) )
+      .catch( error => handleDBError(error) )
   }
 
   findAll( paginationDto: PaginationDto) {
@@ -32,7 +33,7 @@ export class StudentsService {
 
   async findOne(id: string) {
     const student = await this.studentRepository.findOne({ where: { id } })
-      .catch( error => this.handleDBError(error) )
+      .catch( error => handleDBError(error) )
     
     if (!student) 
         throw new NotFoundException(`Student with ID ${id} not found`);
@@ -46,30 +47,17 @@ export class StudentsService {
     const updatedStudent = this.studentRepository.merge(student, updateStudentDto);
 
     return this.studentRepository.save(updatedStudent)
-      .catch( error => this.handleDBError(error) );
+      .catch( error => handleDBError(error) );
   }
 
   async remove(id: string) {
     const result = await this.studentRepository.delete({ id })
-      .catch( error => this.handleDBError(error) );
+      .catch( error => handleDBError(error) );
 
     if (result.affected === 0) {
         throw new NotFoundException(`Student with ID ${id} not found`);
     }
 
     return { message: `Student with ID ${id} has been deleted` };
-}
-
-  private handleDBError(error: any): never {
-    if( error.code === '23505') {
-      throw new BadRequestException( error.detail )
-    }
-
-    if( error.code === '0A000') {
-      throw new NotFoundException('Resource not found')
-    }
-
-    console.log(error);
-    throw new InternalServerErrorException('Something went wrong');
   }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -9,6 +9,7 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService, JwtSignOptions, TokenExpiredError } from '@nestjs/jwt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { EmailService } from '../email/email.service';
+import { handleDBError } from '../common/errors/handleDBError.errors';
 
 @Injectable()
 export class AuthService {
@@ -32,13 +33,10 @@ export class AuthService {
       await this.userRepository.save(user);
       delete user.password;
 
-      return {
-        ...user,
-        token: this.getJwtToken({ id: user.id })
-      }
+      return user;
 
     } catch (error) {
-      this.handleDBError(error);
+      handleDBError(error);
     }
   }
 
@@ -77,7 +75,7 @@ export class AuthService {
       return { message: 'Email sent successfully' };
 
     } catch (error) {
-      this.handleDBError(error);
+      handleDBError(error);
     }
 
   }
@@ -89,14 +87,14 @@ export class AuthService {
     try {
         payload = this.jwtService.verify(token) as JwtPayload;
     } catch (error) {
-        this.handleDBError(error);
+        handleDBError(error);
     }
 
     const { id } = payload;
 
     const user = await this.userRepository.findOne({ where: { id } });
     if(!user) 
-      this.handleDBError(new BadRequestException('User not found'));
+      handleDBError(new BadRequestException('User not found'));
 
     try {
         await this.userRepository.update(id, {
@@ -106,7 +104,7 @@ export class AuthService {
         return { message: 'Password updated successfully' };
 
     } catch (error) {
-        this.handleDBError(error);
+        handleDBError(error);
     }
 }
 
@@ -128,7 +126,7 @@ export class AuthService {
       const updatedUser = await this.userRepository.findOne({ where: { id } });
       return updatedUser;
     } catch (error) {
-      this.handleDBError(error);
+      handleDBError(error);
     }
   }
 
@@ -137,20 +135,8 @@ export class AuthService {
       await this.userRepository.delete(id);
       return { message: 'User deleted' };
     } catch (error) {
-      this.handleDBError(error);
+      handleDBError(error);
     }
-  }
-
-  private handleDBError(error: any): never {
-    if( error.code === '23505') {
-      throw new BadRequestException( error.detail )
-    }
-    if (error instanceof TokenExpiredError) {
-      throw new UnauthorizedException('Token has expired');
-  }
-
-    console.log(error);
-    throw new InternalServerErrorException('Something went wrong');
   }
   
 }

@@ -1,11 +1,12 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateSubjectDto } from './dto/create-subject.dto';
 import { UpdateSubjectDto } from './dto/update-subject.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Subject } from './entities/subject.entity';
-import { RelationQueryBuilder, Repository } from 'typeorm';
-import { User } from 'src/auth/entities/user.entity';
+import { Repository } from 'typeorm';
+import { User } from '../auth/entities/user.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { handleDBError } from '../common/errors/handleDBError.errors';
 
 @Injectable()
 export class SubjectsService {
@@ -28,7 +29,7 @@ export class SubjectsService {
       return subject;
       
     }catch(error){
-      this.handleDBError(error);
+      handleDBError(error);
     }
 
   }
@@ -47,7 +48,7 @@ export class SubjectsService {
       return await this.subjectRepository.findOneOrFail({ where: { id } });
 
     } catch (error) {
-      this.handleDBError(error);
+      handleDBError(error);
     }
   }
 
@@ -60,7 +61,7 @@ export class SubjectsService {
         .where('user.id = :userId', { userId })
         .getMany();
     } catch (error) {
-      this.handleDBError(error);
+      handleDBError(error);
     }
   }
 
@@ -81,7 +82,7 @@ export class SubjectsService {
       await this.subjectRepository.save(subject);
       return subject;
     }catch(error){
-      this.handleDBError(error);
+      handleDBError(error);
     }
 
   }
@@ -90,16 +91,4 @@ export class SubjectsService {
     return this.subjectRepository.delete({ id });
   }
   
-  private handleDBError(error: any): never {
-    if( error.code === '23505') {
-      throw new BadRequestException( error.detail )
-    }
-
-    if( error.code === '0A000') {
-      throw new NotFoundException('Resource not found')
-    }
-
-    console.log(error);
-    throw new InternalServerErrorException('Something went wrong');
-  }
 }

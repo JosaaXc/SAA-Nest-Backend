@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Attendance } from './entities/attendance.entity';
 import { Repository } from 'typeorm';
 import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
+import { handleDBError } from 'src/common/errors/handleDBError.errors';
 
 @Injectable()
 export class AttendancesService {
@@ -34,12 +35,11 @@ export class AttendancesService {
             enrollmentId: enrollment, 
             createdBy: { id: userId } 
         });
-
         try {
-            await this.attendanceRepository.save(attendance);
-            attendances.push(attendance);
+          await this.attendanceRepository.save(attendance);
+          attendances.push(attendance);
         } catch (error) {
-            this.handleDBError(error);
+          handleDBError(error);
         }
     }
 
@@ -62,17 +62,4 @@ export class AttendancesService {
     return `This action removes a #${id} attendance`;
   }
 
-  private handleDBError(error: any): never {
-    if( error.code === '23505') 
-      throw new BadRequestException( error.detail )
-
-    if( error.code === '0A000') 
-      throw new NotFoundException('Resource not found')
-
-    if (error.code === '23503') 
-      throw new BadRequestException(error.detail);
-
-    console.log(error);
-    throw new InternalServerErrorException('Something went wrong');
-  }
 }
