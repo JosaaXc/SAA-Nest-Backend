@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { AttendancesService } from './attendances.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { User } from 'src/auth/entities/user.entity';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('attendances')
 export class AttendancesController {
@@ -19,22 +20,31 @@ export class AttendancesController {
   }
 
   @Get()
-  findAll() {
-    return this.attendancesService.findAll();
+  findAll(
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.attendancesService.findAll( paginationDto );
+  }
+  
+  @Get('by-enrollment/:enrollmentId')
+  findManyByEnrollment(
+    @Param('enrollmentId', ParseUUIDPipe) enrollmentId: string
+  ) {
+    return this.attendancesService.findManyByEnrollment(enrollmentId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.attendancesService.findOne(+id);
+  findOne(
+    @Param('id', ParseUUIDPipe ) id: string
+  ) {
+    return this.attendancesService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAttendanceDto: UpdateAttendanceDto) {
-    return this.attendancesService.update(+id, updateAttendanceDto);
+  @Patch()
+  update(
+    @Body() updateAttendanceDtos: UpdateAttendanceDto[]
+  ) {
+    return this.attendancesService.update(updateAttendanceDtos);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.attendancesService.remove(+id);
-  }
 }

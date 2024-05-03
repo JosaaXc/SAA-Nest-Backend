@@ -6,6 +6,7 @@ import { Attendance } from './entities/attendance.entity';
 import { Repository } from 'typeorm';
 import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
 import { handleDBError } from 'src/common/errors/handleDBError.errors';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
 export class AttendancesService {
@@ -46,16 +47,81 @@ export class AttendancesService {
     return attendances;
   }
 
-  findAll() {
-    return `This action returns all attendances`;
+  async findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    const attendances = await this.attendanceRepository.find({
+        take: limit,
+        skip: offset
+    });
+
+    return attendances.map(attendance => ({
+        id: attendance.id,
+        attendance: attendance.attendance,
+        createdAt: attendance.createdAt,
+        creationTime: attendance.creationTime,
+        student: {
+            id: attendance.enrollmentId.student.id,
+            fullName: attendance.enrollmentId.student.fullName,
+            matricula: attendance.enrollmentId.student.matricula,
+        },
+    }));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} attendance`;
+  async findManyByEnrollment(enrollmentId: string) {
+    
+    const attendances = await this.attendanceRepository.find({
+      where: { enrollmentId: { id: enrollmentId } },
+    });
+
+    if (attendances.length === 0) 
+      throw new NotFoundException(`Attendances not found for enrollmentId ${enrollmentId}`);
+    
+    try {
+
+      return attendances.map(attendance => ({
+        id: attendance.id,
+        attendance: attendance.attendance,
+        createdAt: attendance.createdAt,
+        creationTime: attendance.creationTime,
+      }));
+
+    } catch (error) {
+      handleDBError(error);
+    }
+}
+
+  async findOne(id: string) {
+    try{
+      const attendance = await this.attendanceRepository.findOneOrFail({ where: { id } });
+      return {
+        id: attendance.id,
+        attendance: attendance.attendance,
+        createdAt: attendance.createdAt,
+        creationTime: attendance.creationTime,
+        student: {
+          id: attendance.enrollmentId.student.id,
+          fullName: attendance.enrollmentId.student.fullName,
+          matricula: attendance.enrollmentId.student.matricula,
+        },
+      }
+    }catch(error){
+      handleDBError(error);
+    }
   }
 
-  update(id: number, updateAttendanceDto: UpdateAttendanceDto) {
-    return `This action updates a #${id} attendance`;
+  async update (updateAttendanceDtos: UpdateAttendanceDto[]) {
+    const attendances = [];
+
+    for (const updateAttendanceDto of updateAttendanceDtos) {
+        try {
+          await this.attendanceRepository.save(updateAttendanceDto);
+          attendances.push(updateAttendanceDto);
+        } catch (error) {
+          handleDBError(error);
+        }
+    }
+    return attendances;
   }
 
   remove(id: number) {
