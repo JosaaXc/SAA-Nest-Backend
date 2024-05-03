@@ -19,6 +19,11 @@ export class User {
     })
     password: string;
 
+    @Column('date', {
+        nullable: true
+    })
+    passwordChangedAt: Date;
+
     @Column('text')
     fullName: string;
 

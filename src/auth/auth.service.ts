@@ -55,6 +55,8 @@ export class AuthService {
     if( !bcrypt.compareSync(password, user.password ) )
       throw new UnauthorizedException('Invalid credentials(password)');
 
+    delete user.password; 
+
     return {
       ...user,
       token: this.getJwtToken({ id: user.id })
@@ -62,9 +64,29 @@ export class AuthService {
 
   }
 
+  async changePassword( user: User, resetPasswordDto: ResetPasswordDto ){
+      
+    await this.checkPasswordChangeAt(user);
+    const { password } = resetPasswordDto;
+    
+    try {
+      const now = new Date();
+      await this.userRepository.update(user.id, {
+        password: await bcrypt.hash(password, 10),
+        passwordChangedAt: new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      });
+      return { message: 'Password updated successfully' };
+
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
   async forgotPassword({ email }: EmailToChangePasswordDto ){
 
     const user = await this.userRepository.findOne({ where: { email } });
+    await this.checkPasswordChangeAt(user);
+
       if(!user) 
         throw new BadRequestException(`User with email ${ email } not found`);
 
@@ -107,10 +129,24 @@ export class AuthService {
     } catch (error) {
         handleDBError(error);
     }
-}
+  }
 
   private getJwtToken(payload: JwtPayload, options?: JwtSignOptions) {
     return this.jwtService.sign(payload, options);
+  }
+
+  private async checkPasswordChangeAt(user: User) {
+    const { passwordChangedAt } = await this.userRepository.findOne({ where: { id: user.id } });
+
+    if(passwordChangedAt) {
+      const now = new Date();
+      const lastChanged = new Date(passwordChangedAt);
+      const diff = now.getTime() - lastChanged.getTime();
+      const days = diff / (1000 * 60 * 60 * 24);
+
+      if(days < 30) 
+        throw new BadRequestException('You can only change your password every 30 days');
+    }
   }
 
   async getUsers() {
@@ -139,5 +175,4 @@ export class AuthService {
       handleDBError(error);
     }
   }
-  
 }

@@ -2,6 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetM
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto, EmailToChangePasswordDto, ResetPasswordDto } from './dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Auth } from './decorators/auth.decorator';
+import { GetUser } from './decorators';
+import { User } from './entities/user.entity';
 
 
 @Controller('auth')
@@ -25,13 +28,20 @@ export class AuthController {
     return this.authService.forgotPassword(email);
   }
 
-
+  @Patch('change-password')
+  @Auth()
+  changePassword(
+    @GetUser() user: User,
+    @Body() resetPasswordDto: ResetPasswordDto
+  ) {
+    return this.authService.changePassword(user, resetPasswordDto);
+  }
+  
   @Post('reset-password/:token')
   public async resetPasswordToken(
     @Body() resetPasswordDto: ResetPasswordDto,
     @Param('token') token: string
     ) {
-    console.log(token);
     return await this.authService.resetPasswordToken(token,resetPasswordDto);
   }
 
