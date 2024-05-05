@@ -27,10 +27,10 @@ export class EnrollmentsController {
   }
 
   @Get('subject/:subjectId')
-  findBySubject(
+  findStudentsEnrolled(
     @Param('subjectId', ParseUUIDPipe ) subjectId: string
   ) {
-    return this.enrollmentsService.findBySubject(subjectId);
+    return this.enrollmentsService.findStudentsEnrolled(subjectId);
   }
 
   @Get(':id')

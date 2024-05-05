@@ -7,29 +7,32 @@ import { ValidRoles } from 'src/auth/interfaces';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('students')
-@Auth(ValidRoles.admin)
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
-
+  
+  @Auth(ValidRoles.admin)
   @Post()
-  create(@Body() createStudentDto: CreateStudentDto) {
+  create(
+    @Body() createStudentDto: CreateStudentDto
+  ) {
     return this.studentsService.create(createStudentDto);
   }
-
+  
   @Get()
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
     return this.studentsService.findAll( paginationDto );
   }
-
+  
   @Get(':id')
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
     return this.studentsService.findOne(id);
   }
-
+  
+  @Auth(ValidRoles.admin)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string, 
@@ -37,7 +40,8 @@ export class StudentsController {
   ) {
     return this.studentsService.update(id, updateStudentDto);
   }
-
+  
+  @Auth(ValidRoles.admin)
   @Delete(':id')
   remove(
     @Param('id', ParseUUIDPipe) id: string

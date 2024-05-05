@@ -50,7 +50,7 @@ export class EnrollmentsService {
     return enrollments.map(({ studentId, subjectId, addedBy, ...enrollment }) => enrollment);
   }
 
-  async findBySubject(subjectId: string) {
+  async findStudentsEnrolled(subjectId: string) {
     try {
       const enrollments = await this.enrollmentRepository.find({
         where: { subjectId },
@@ -78,8 +78,6 @@ export class EnrollmentsService {
 
     const { studentId, subjectId, addedBy, ...enrollmentData } = enrollment;
     return enrollmentData;
-
-
   }
 
   async remove(deleteEnrollmentDto: DeleteEnrollmentDto[]) {
