@@ -14,19 +14,29 @@ export class EnrollmentsService {
     private enrollmentRepository: Repository<Enrollment>,
   ) {}
   
-  async create(createEnrollmentDtos: CreateEnrollmentDto[], userId: string) {
-    try {
-      const enrollments = createEnrollmentDtos.map(dto => this.enrollmentRepository.create({
-        ...dto,
+  async create(subjectId: string, createEnrollmentDtos: CreateEnrollmentDto[], userId: string) {
+    const enrollments = createEnrollmentDtos.map(enrollment => {
+      return this.enrollmentRepository.create({
+        ...enrollment,
+        subjectId,
         addedBy: userId
-      }));
-  
+      });
+    });
+
+    try {
       await this.enrollmentRepository.save(enrollments);
-      return enrollments;
-  
     } catch (error) {
       handleDBError(error);
     }
+
+    const enrollmentsWithStudents = await Promise.all(
+      enrollments.map(enrollment => 
+        this.enrollmentRepository.findOne({ where: { id: enrollment.id }, relations: ['student'] })
+      )
+    );
+
+    return enrollmentsWithStudents.map(enrollment => enrollment.student);
+
   }
 
   async findAll(paginationDto: PaginationDto) {
@@ -38,6 +48,22 @@ export class EnrollmentsService {
     });
   
     return enrollments.map(({ studentId, subjectId, addedBy, ...enrollment }) => enrollment);
+  }
+
+  async findBySubject(subjectId: string) {
+    try {
+      const enrollments = await this.enrollmentRepository.find({
+        where: { subjectId },
+        relations: ['student']
+      });
+
+      return enrollments.map(enrollment => ({
+        enrollmentId: enrollment.id,
+        ...enrollment.student,
+      }));
+    } catch (error) {
+      handleDBError(error);
+    }
   }
 
   async findOne(id: string) {

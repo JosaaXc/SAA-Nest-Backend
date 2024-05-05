@@ -5,9 +5,5 @@ export class CreateEnrollmentDto {
     @IsString()
     @IsUUID()
     studentId: string;
-
-    @IsString()
-    @IsUUID()
-    subjectId: string;
     
 }

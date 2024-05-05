@@ -11,12 +11,13 @@ import { PaginationDto } from 'src/common/dtos/pagination.dto';
 export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
 
-  @Post()
+  @Post(':subjectId')
   create(
+    @Param('subjectId', ParseUUIDPipe ) subjectId: string,
     @Body() createEnrollmentDtos: CreateEnrollmentDto[],
     @GetUser() user: User
   ) {
-    return this.enrollmentsService.create(createEnrollmentDtos, user.id);
+    return this.enrollmentsService.create(subjectId, createEnrollmentDtos, user.id);
   }
 
   @Get()
@@ -24,6 +25,13 @@ export class EnrollmentsController {
     @Query() paginationDto: PaginationDto,
   ) {
     return this.enrollmentsService.findAll(paginationDto);
+  }
+
+  @Get('subject/:subjectId')
+  findBySubject(
+    @Param('subjectId', ParseUUIDPipe ) subjectId: string
+  ) {
+    return this.enrollmentsService.findBySubject(subjectId);
   }
 
   @Get(':id')
