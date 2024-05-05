@@ -26,6 +26,7 @@ export class SubjectsService {
       });
 
       await this.subjectRepository.save(subject);
+      delete subject.user;
       return subject;
       
     }catch(error){
