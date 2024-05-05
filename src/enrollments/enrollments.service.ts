@@ -1,10 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
+import { Injectable, NotFoundException, Delete, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Enrollment } from './entities/enrollment.entity';
-import { Repository } from 'typeorm';
+import { EntityNotFoundError, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { handleDBError } from '../common/errors/handleDBError.errors';
+import { CreateEnrollmentDto, DeleteEnrollmentDto } from './dto';
 
 @Injectable()
 export class EnrollmentsService {
@@ -82,12 +82,18 @@ export class EnrollmentsService {
 
   }
 
-  async remove(id: string) {
-    const result = await this.enrollmentRepository.delete({ id });
-      if (result.affected === 0) 
-        throw new NotFoundException('Resource not found');
-    
-    return { mesagge: 'Enrollment deleted successfully' };
-  }
+  async remove(deleteEnrollmentDto: DeleteEnrollmentDto[]) {
+    try {
+      const ids = deleteEnrollmentDto.map(dto => dto.id);
+      const result = await this.enrollmentRepository.delete(ids);
 
+      if (result.affected === 0) {
+        throw new EntityNotFoundError(Enrollment, ids);
+      }
+
+      return { message: 'Enrollments deleted successfully' };
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
 }

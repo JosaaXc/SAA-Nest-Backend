@@ -1,10 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { EnrollmentsService } from './enrollments.service';
-import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
-import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
-import { Auth, GetUser } from 'src/auth/decorators';
-import { User } from 'src/auth/entities/user.entity';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { Auth, GetUser } from '../auth/decorators';
+import { User } from '../auth/entities/user.entity';
+import { PaginationDto } from '../common/dtos/pagination.dto';
+import { CreateEnrollmentDto, DeleteEnrollmentDto } from './dto';
 
 @Controller('enrollments')
 @Auth()
@@ -41,10 +40,10 @@ export class EnrollmentsController {
     return this.enrollmentsService.findOne(id);
   }
 
-  @Delete(':id')
+  @Delete('many-enrollments')
   remove(
-    @Param('id', ParseUUIDPipe ) id: string
+    @Body() deleteEnrollmentDto: DeleteEnrollmentDto[]
   ) {
-    return this.enrollmentsService.remove(id);
+    return this.enrollmentsService.remove(deleteEnrollmentDto);
   }
 }
