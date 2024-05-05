@@ -26,19 +26,19 @@ export class SubjectsController {
     return this.subjectsService.findAll( paginationDto );
   }
 
-  @Get(':id')
-  findOne(
-    @Param('id', ParseUUIDPipe) id: string
-  ) {
-    return this.subjectsService.findOne(id);
-  }
-
   @Get('own-subjects')
   @Auth()
   findMany(
     @GetUser() user: User
   ) {
     return this.subjectsService.findManyByUser(user.id);
+  }
+
+  @Get(':id')
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string
+  ) {
+    return this.subjectsService.findOne(id);
   }
 
   @Patch(':id')
