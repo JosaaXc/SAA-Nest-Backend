@@ -1,7 +1,6 @@
-import { Attendance } from "src/attendances/entities/attendance.entity";
-import { User } from "src/auth/entities/user.entity";
-import { Student } from "src/students/entities/student.entity";
-import { Subject } from "src/subjects/entities/subject.entity";
+import { User } from "../../auth/entities/user.entity";
+import { Student } from "../../students/entities/student.entity";
+import { Subject } from "../../subjects/entities/subject.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity({ name: 'enrollments' })

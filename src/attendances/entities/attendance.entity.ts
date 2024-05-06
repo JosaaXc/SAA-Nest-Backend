@@ -1,7 +1,7 @@
-import { Enrollment } from "src/enrollments/entities/enrollment.entity";
+import { Enrollment } from "../../enrollments/entities/enrollment.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { AttendanceStatus } from "../interfaces/attendance-status.interface";
-import { User } from "src/auth/entities/user.entity";
+import { User } from "../../auth/entities/user.entity";
 
 @Entity({ name: 'attendances' })
 @Unique(['enrollmentId', 'createdAt'])

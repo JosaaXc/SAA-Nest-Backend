@@ -18,10 +18,13 @@ export class SubjectsService {
 
 
   async create(createSubjectDto: CreateSubjectDto, user: User) {
-
+    
+    const { period, ...CreateSubject } = createSubjectDto;
     try{
+      
       const subject = this.subjectRepository.create({
-        ...createSubjectDto,
+        ...CreateSubject,
+        period: { id: period },
         user
       });
 
@@ -67,21 +70,22 @@ export class SubjectsService {
   }
 
   async update(id: string, user: User, updateSubjectDto: UpdateSubjectDto) {
-    const subject = await this.subjectRepository.findOne({ where: {id }})
 
-    if(!subject){
-      throw new BadRequestException('Subject not found');
-    }
+    const subject = await this.subjectRepository.findOneOrFail({ where: {id }})
 
     if( subject.user.id !== user.id ){
       throw new UnauthorizedException('You cannot update this subject');
     }
 
-    this.subjectRepository.merge(subject, updateSubjectDto);
+    this.subjectRepository.merge(subject, {
+      ...updateSubjectDto,
+      period: { id: updateSubjectDto.period }
+    });
 
     try{
-      await this.subjectRepository.save(subject);
-      return subject;
+      const subjectUpload = await this.subjectRepository.save(subject);
+      delete subjectUpload.user;
+      return subjectUpload;
     }catch(error){
       handleDBError(error);
     }

@@ -17,7 +17,7 @@ export function handleDBError(error: any): never {
     throw new BadRequestException(error.detail);
 
   if ( error.code === "22P02")
-    throw new BadRequestException( 'Invalid input' );
+    throw new BadRequestException( 'Invalid foreing key in your request' );
 
   if (error instanceof TokenExpiredError) 
     throw new UnauthorizedException('Token has expired');

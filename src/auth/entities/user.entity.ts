@@ -1,5 +1,5 @@
 import { IsEmail } from "class-validator";
-import { Subject } from "src/subjects/entities/subject.entity";
+import { Subject } from "../../subjects/entities/subject.entity";
 import { Column, Entity, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
 
 @Entity('users')

@@ -1,5 +1,7 @@
-import { User } from "src/auth/entities/user.entity";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, BeforeInsert, Unique, BeforeUpdate } from 'typeorm';
+import { User } from "../../auth/entities/user.entity";
+import { Period } from "../../periods/entities/period.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, BeforeInsert, Unique, BeforeUpdate, JoinColumn } from 'typeorm';
+import { BadRequestException } from '@nestjs/common';
 
 @Entity()
 @Unique(['name', 'group', 'grade'])
@@ -17,8 +19,9 @@ export class Subject {
     @Column('text')
     group: string;
 
-    @Column('text')
-    period: string;
+    @ManyToOne(() => Period, { eager: true, onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'period' })
+    period: Period;
 
     @Column('text', {
         array: true,
@@ -40,12 +43,16 @@ export class Subject {
 
     @BeforeInsert()
     checkNameBeforeInsert(){
-        this.name = this.name.toLowerCase().replace(/ /g, '-').trim();
+        if (this.name) {
+            this.name = this.name.toLowerCase().replace(/ /g, '-').trim();
+        } else {
+            throw new BadRequestException('Name is required');
+        }
     }
 
     @BeforeUpdate()
     checkNameBeforeUpdate(){
-        this.name = this.name.toLowerCase().replace(/ /g, '-').trim();
+        this.checkNameBeforeInsert();
     }
 
 }
