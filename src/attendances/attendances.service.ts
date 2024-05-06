@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Attendance } from './entities/attendance.entity';
 import { Repository } from 'typeorm';
-import { Enrollment } from 'src/enrollments/entities/enrollment.entity';
-import { handleDBError } from 'src/common/errors/handleDBError.errors';
+import { Enrollment } from '../enrollments/entities/enrollment.entity';
+import { handleDBError } from '../common/errors/handleDBError.errors';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
@@ -23,21 +23,14 @@ export class AttendancesService {
     const attendances = [];
 
     for (const createAttendanceDto of createAttendanceDtos) {
-        const enrollment = await this.enrollmentRepository.findOne({
-            where: { id: createAttendanceDto.enrollmentId }
-        });
-
-        if (!enrollment) {
-            throw new NotFoundException(`Enrollment not found for id ${createAttendanceDto.enrollmentId}`);
-        }
-
         const attendance = this.attendanceRepository.create({
             ...createAttendanceDto,
-            enrollmentId: enrollment, 
+            enrollmentId: { id: createAttendanceDto.enrollmentId }, 
             createdBy: { id: userId } 
         });
         try {
           await this.attendanceRepository.save(attendance);
+          delete attendance.createdBy;
           attendances.push(attendance);
         } catch (error) {
           handleDBError(error);
@@ -112,14 +105,17 @@ export class AttendancesService {
 
   async update (updateAttendanceDtos: UpdateAttendanceDto[]) {
     const attendances = [];
-
+  
     for (const updateAttendanceDto of updateAttendanceDtos) {
-        try {
-          await this.attendanceRepository.save(updateAttendanceDto);
-          attendances.push(updateAttendanceDto);
-        } catch (error) {
-          handleDBError(error);
-        }
+      const attendance = await this.attendanceRepository.preload(updateAttendanceDto);
+      if (!attendance) 
+        throw new BadRequestException(`Attendance with ID ${updateAttendanceDto.id} not found`);
+      try {
+        await this.attendanceRepository.save(attendance);
+        attendances.push(attendance);
+      } catch (error) {
+        handleDBError(error);
+      }
     }
     return attendances;
   }
