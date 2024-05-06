@@ -11,7 +11,7 @@ export class PartialController {
   constructor(private readonly partialService: PartialService) {}
 
   @Post()
-  create(@Body() createPartialDto: CreatePartialDto) {
+  create(@Body() createPartialDto: CreatePartialDto[]) {
     return this.partialService.create(createPartialDto);
   }
 

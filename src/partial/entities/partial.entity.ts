@@ -14,14 +14,14 @@ export class Partial {
     })
     partial: string;
     
-    @Column('date', {
-        nullable: false,
+    @Column({ 
+        type: 'date', 
         unique: true,
     })
-    startDate: Date; 
+    startDate: Date;
     
-    @Column('date', {
-        nullable: false,
+    @Column({ 
+        type: 'date', 
         unique: true,
     })
     finishDate: Date; 
