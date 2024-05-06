@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Auth } from './decorators/auth.decorator';
 import { GetUser } from './decorators';
 import { User } from './entities/user.entity';
+import { ValidRoles } from './interfaces';
 
 
 @Controller('auth')
@@ -12,6 +13,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @Auth(ValidRoles.admin)
   createUser(@Body() createAuthDto: CreateUserDto) {
     return this.authService.create(createAuthDto);
   }
@@ -28,15 +30,7 @@ export class AuthController {
     return this.authService.forgotPassword(email);
   }
 
-  @Patch('change-password')
-  @Auth()
-  changePassword(
-    @GetUser() user: User,
-    @Body() resetPasswordDto: ResetPasswordDto
-  ) {
-    return this.authService.changePassword(user, resetPasswordDto);
-  }
-  
+    
   @Post('reset-password/:token')
   public async resetPasswordToken(
     @Body() resetPasswordDto: ResetPasswordDto,
@@ -45,22 +39,38 @@ export class AuthController {
     return await this.authService.resetPasswordToken(token,resetPasswordDto);
   }
 
+  @Patch('change-password')
+  @Auth()
+  changePassword(
+    @GetUser() user: User,
+    @Body() resetPasswordDto: ResetPasswordDto
+  ) {
+    return this.authService.changePassword(user, resetPasswordDto);
+  }
+
   @Get('users')
+  @Auth(ValidRoles.admin)
   getUsers() {
     return this.authService.getUsers();
   }
   
   @Get('users/:id')
+  @Auth(ValidRoles.admin)
   getUser(@Param('id') id: string) {
     return this.authService.getUser(id);
   }
- 
+  
   @Patch('users/:id')
-  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @Auth(ValidRoles.admin)
+  updateUser(
+    @Param('id') id: string, 
+    @Body() updateUserDto: UpdateUserDto
+  ) {
     return this.authService.updateUser(id, updateUserDto);
   }
-
+  
   @Delete('users/:id')
+  @Auth(ValidRoles.admin)
   deleteUser(@Param('id') id: string) {
     return this.authService.deleteUser(id);
   }

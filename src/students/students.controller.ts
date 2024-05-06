@@ -2,16 +2,16 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe
 import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
-import { Auth } from 'src/auth/decorators';
-import { ValidRoles } from 'src/auth/interfaces';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { Auth } from '../auth/decorators';
+import { ValidRoles } from '../auth/interfaces';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('students')
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
   
-  @Auth(ValidRoles.admin)
   @Post()
+  @Auth(ValidRoles.admin)
   create(
     @Body() createStudentDto: CreateStudentDto
   ) {
@@ -19,6 +19,7 @@ export class StudentsController {
   }
   
   @Get()
+  @Auth()
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
@@ -26,14 +27,15 @@ export class StudentsController {
   }
   
   @Get(':id')
+  @Auth()
   findOne(
     @Param('id', ParseUUIDPipe) id: string
   ) {
     return this.studentsService.findOne(id);
   }
   
-  @Auth(ValidRoles.admin)
   @Patch(':id')
+  @Auth(ValidRoles.admin)
   update(
     @Param('id', ParseUUIDPipe) id: string, 
     @Body() updateStudentDto: UpdateStudentDto
@@ -41,8 +43,8 @@ export class StudentsController {
     return this.studentsService.update(id, updateStudentDto);
   }
   
-  @Auth(ValidRoles.admin)
   @Delete(':id')
+  @Auth(ValidRoles.admin)
   remove(
     @Param('id', ParseUUIDPipe) id: string
   ) {

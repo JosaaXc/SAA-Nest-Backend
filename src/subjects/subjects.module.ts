@@ -3,8 +3,7 @@ import { SubjectsService } from './subjects.service';
 import { SubjectsController } from './subjects.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Subject } from './entities/subject.entity';
-import { PassportModule } from '@nestjs/passport';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [SubjectsController],

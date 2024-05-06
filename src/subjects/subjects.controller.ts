@@ -7,11 +7,11 @@ import { User } from '../auth/entities/user.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('subjects')
+@Auth()
 export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
   @Post()
-  @Auth()
   create(
     @Body() createSubjectDto: CreateSubjectDto,
     @GetUser() user: User
@@ -27,7 +27,6 @@ export class SubjectsController {
   }
 
   @Get('own-subjects')
-  @Auth()
   findMany(
     @GetUser() user: User
   ) {
@@ -42,7 +41,6 @@ export class SubjectsController {
   }
 
   @Patch(':id')
-  @Auth()
   update(
     @Param('id', ParseUUIDPipe ) id: string, 
     @Body() updateSubjectDto: UpdateSubjectDto,
@@ -52,7 +50,6 @@ export class SubjectsController {
   }
 
   @Delete(':id')
-  @Auth()
   remove(
     @Param('id') id: string
   ) {

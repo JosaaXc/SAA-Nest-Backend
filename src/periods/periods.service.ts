@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Period } from './entities/period.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CreatePeriodDto } from './dto/create-period.dto';
-import { handleDBError } from 'src/common/errors/handleDBError.errors';
+import { handleDBError } from '../common/errors/handleDBError.errors';
 
 @Injectable()
 export class PeriodsService {

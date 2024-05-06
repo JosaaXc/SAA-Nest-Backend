@@ -8,20 +8,20 @@ import { ValidRoles } from '../auth/interfaces';
 export class PeriodsController {
   constructor(private readonly periodsService: PeriodsService) {}
   
-  @Auth(ValidRoles.admin)
   @Post()
+  @Auth(ValidRoles.admin)
   create(@Body() createPeriodDto: CreatePeriodDto) {
     return this.periodsService.create(createPeriodDto);
   }
   
-  @Auth(ValidRoles.admin)
   @Get()
+  @Auth()
   findAll() {
     return this.periodsService.findAll();
   }
 
-  @Auth(ValidRoles.admin)
   @Patch(':id')
+  @Auth(ValidRoles.admin)
   update(
     @Param('id', ParseUUIDPipe ) id: string, 
     @Body() updatePeriodDto: CreatePeriodDto
@@ -29,8 +29,8 @@ export class PeriodsController {
     return this.periodsService.update(id, updatePeriodDto);
   }
 
-  @Auth(ValidRoles.admin)
   @Delete(':id')
+  @Auth(ValidRoles.admin)
   remove(@Param('id', ParseUUIDPipe ) id: string) {
     return this.periodsService.remove(id);
   }

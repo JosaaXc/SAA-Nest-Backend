@@ -3,7 +3,7 @@ import { PartialService } from './partial.service';
 import { PartialController } from './partial.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Partial } from './entities/partial.entity';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [PartialController],

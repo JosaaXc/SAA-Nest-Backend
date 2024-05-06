@@ -4,7 +4,7 @@ import { PeriodsController } from './periods.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Period } from './entities/period.entity';
 import { ScheduleModule } from '@nestjs/schedule';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [PeriodsController],
