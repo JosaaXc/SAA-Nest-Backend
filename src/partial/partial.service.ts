@@ -14,9 +14,12 @@ export class PartialService {
     private partialRepository: Repository<Partial>,
   ) { }
 
-  async create(createPartialDtos: CreatePartialDto[]) {
+  async create(partialId: string, createPartialDtos: CreatePartialDto[]) {
     try {
-      const partials = createPartialDtos.map(dto => this.partialRepository.create(dto));
+      const partials = createPartialDtos.map(dto => this.partialRepository.create({
+        ...dto,
+        period: { id: partialId }
+      }));
       const savedPartials = await Promise.all(partials.map(partial => this.partialRepository.save(partial)));
       return savedPartials;
     } catch (error) {
@@ -37,12 +40,12 @@ export class PartialService {
   }
 
   async update(id: string , updatePartialDto: UpdatePartialDto) {
+
     try {
       
       const partial = await this.partialRepository.findOneOrFail({ where: { id } })
-      const updatedPartial = this.partialRepository.merge(partial, updatePartialDto)
-      await this.partialRepository.save(updatedPartial)
-      return updatedPartial
+      const updatedPartial = this.partialRepository.merge(partial, { ...updatePartialDto, period: { id: updatePartialDto.period } })
+      return this.partialRepository.save(updatedPartial)
 
     } catch (error) {
       handleDBError(error)

@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Partials } from "../interfaces/partials.interfaces.dto";
+import { Period } from "../../periods/entities/period.entity";
 
 @Entity()
 export class Partial {
@@ -13,7 +14,11 @@ export class Partial {
         unique: true,
     })
     partial: string;
-    
+
+    @ManyToOne(() => Period, { eager: true, onDelete: 'CASCADE'})
+    @JoinColumn({ name: 'period'})
+    period: Period;
+
     @Column({ 
         type: 'date', 
         unique: true,

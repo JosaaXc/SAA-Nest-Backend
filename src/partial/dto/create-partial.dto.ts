@@ -1,4 +1,4 @@
-import { IsEnum, IsString, Validate } from "class-validator";
+import { IsEnum, IsString, IsUUID, Validate } from "class-validator";
 import { Partials } from "../interfaces/partials.interfaces.dto";
 import { ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
 
@@ -21,6 +21,9 @@ export class CreatePartialDto {
 
     @IsEnum(Partials)
     partial: string;
+
+    @IsUUID()
+    period: string;
     
     @IsString()
     @Validate(IsDateRange, ['finishDate'])
