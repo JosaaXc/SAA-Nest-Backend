@@ -82,7 +82,7 @@ export class EnrollmentsService {
 
   async remove(deleteEnrollmentDto: DeleteEnrollmentDto[]) {
     try {
-      const ids = deleteEnrollmentDto.map(dto => dto.id);
+      const ids = deleteEnrollmentDto.map(dto => dto.enrollmentId);
       const result = await this.enrollmentRepository.delete(ids);
 
       if (result.affected === 0) {

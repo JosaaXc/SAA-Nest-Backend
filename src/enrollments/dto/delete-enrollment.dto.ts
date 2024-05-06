@@ -4,6 +4,6 @@ export class DeleteEnrollmentDto {
   
   @IsString()
   @IsUUID()
-  id: string;
+  enrollmentId: string;
 
 }
