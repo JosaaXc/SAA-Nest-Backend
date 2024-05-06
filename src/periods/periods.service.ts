@@ -36,4 +36,30 @@ export class PeriodsService {
     }
   }
 
+  async findAll() {
+    try {
+      return await this.periodRepository.find();
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  async update(id: string, updatePeriodDto: CreatePeriodDto) {
+    try {
+      await this.periodRepository.update(id, updatePeriodDto);
+      return await this.periodRepository.findOneOrFail({ where: { id } });
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  async remove(id: string) {
+    try {
+      await this.periodRepository.delete(id);
+      return { message: 'Period eliminated' }
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
 }
