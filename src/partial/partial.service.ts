@@ -4,7 +4,7 @@ import { UpdatePartialDto } from './dto/update-partial.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Partial } from './entities/partial.entity';
 import { Repository } from 'typeorm';
-import { handleDBError } from 'src/common/errors/handleDBError.errors';
+import { handleDBError } from '../common/errors/handleDBError.errors';
 
 @Injectable()
 export class PartialService {
