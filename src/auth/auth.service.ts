@@ -31,7 +31,8 @@ export class AuthService {
         password: await bcrypt.hash(password, 10)
       });
       await this.userRepository.save(user);
-      await this.emailService.sendCredentialsToUser(createAuthDto);
+      //TODO: Discomment on production
+      // await this.emailService.sendCredentialsToUser(createAuthDto);
       delete user.password;
 
       return user;

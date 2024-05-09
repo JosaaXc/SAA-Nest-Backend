@@ -62,6 +62,7 @@ export class SubjectsService {
     try {
       return this.subjectRepository.createQueryBuilder('subject')
         .innerJoin('subject.user', 'user')
+        .innerJoinAndSelect('subject.period', 'period')
         .where('user.id = :userId', { userId })
         .getMany();
     } catch (error) {
