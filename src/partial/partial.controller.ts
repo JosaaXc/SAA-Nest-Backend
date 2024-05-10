@@ -9,13 +9,12 @@ import { ValidRoles } from '../auth/interfaces';
 export class PartialController {
   constructor(private readonly partialService: PartialService) {}
   
-  @Post(':partialId')
+  @Post('')
   @Auth(ValidRoles.admin)
   create(
-    @Param('partialId', ParseUUIDPipe) partialId: string,
-    @Body() createPartialDto: CreatePartialDto[]
+    @Body() createPartialDto: CreatePartialDto
   ) {
-    return this.partialService.create(partialId, createPartialDto);
+    return this.partialService.create(createPartialDto);
   }
   
   @Get()

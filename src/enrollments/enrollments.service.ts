@@ -47,7 +47,7 @@ export class EnrollmentsService {
       skip: offset,
     });
   
-    return enrollments.map(({ studentId, subjectId, addedBy, ...enrollment }) => enrollment);
+    return enrollments.map(({ studentId, subjectId, addedBy,subject, addedByUser, ...enrollment }) => enrollment);
   }
 
   async findStudentsEnrolled(subjectId: string) {
@@ -68,16 +68,19 @@ export class EnrollmentsService {
 
   async findOne(id: string) {
 
-    const enrollment = await this.enrollmentRepository.findOne({
-      where: { id },
-      relations: ['student', 'subject', 'addedByUser']
-    });
-
-    if (!enrollment) 
-      throw new NotFoundException('Resource not found');
-
-    const { studentId, subjectId, addedBy, ...enrollmentData } = enrollment;
-    return enrollmentData;
+    try {
+      
+      const enrollment = await this.enrollmentRepository.findOne({
+        where: { id },
+        relations: ['student']
+      });
+  
+      const { studentId, subjectId, addedBy, ...enrollmentData } = enrollment;
+      return enrollmentData;
+      
+    } catch (error) {
+      handleDBError(error);
+    }
   }
 
   async remove(deleteEnrollmentDto: DeleteEnrollmentDto[]) {

@@ -14,14 +14,15 @@ export class PartialService {
     private partialRepository: Repository<Partial>,
   ) { }
 
-  async create(partialId: string, createPartialDtos: CreatePartialDto[]) {
+  async create(createPartialDto: CreatePartialDto) {
     try {
-      const partials = createPartialDtos.map(dto => this.partialRepository.create({
-        ...dto,
-        period: { id: partialId }
-      }));
-      const savedPartials = await Promise.all(partials.map(partial => this.partialRepository.save(partial)));
-      return savedPartials;
+      const { period, ...createPartial} = createPartialDto; 
+      const partial = this.partialRepository.create({ 
+        ...createPartial, 
+        period: { id: period }
+      })
+      return this.partialRepository.save(partial)
+
     } catch (error) {
       handleDBError(error);
     }

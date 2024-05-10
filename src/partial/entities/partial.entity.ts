@@ -3,7 +3,7 @@ import { Partials } from "../interfaces/partials.interfaces.dto";
 import { Period } from "../../periods/entities/period.entity";
 
 @Entity()
-@Unique(['partial', 'period', 'startDate', 'finishDate'])
+@Unique(['partial', 'period'])
 export class Partial {
 
     @PrimaryGeneratedColumn('uuid')
