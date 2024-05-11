@@ -25,6 +25,26 @@ export class AttendancesController {
   ) {
     return this.attendancesService.findAll( paginationDto );
   }
+
+  @Get('attendance-dates')
+  findAttendanceDates() {
+    return this.attendancesService.findAttendanceDates();
+  }
+
+  @Get('by-date')
+  findManyByDateAndSubject(
+  @Query('date') date: string,
+  @Query('subjectId') subjectId: string
+  ) {
+  return this.attendancesService.findManyByDateAndSubject(date, subjectId);
+  }
+
+  @Get('by-subject/:subjectId')
+  findManyBySubject(
+    @Param('subjectId', ParseUUIDPipe) subjectId: string
+  ) {
+    return this.attendancesService.findManyBySubject(subjectId);
+  }
   
   @Get('by-enrollment/:enrollmentId')
   findManyByEnrollment(

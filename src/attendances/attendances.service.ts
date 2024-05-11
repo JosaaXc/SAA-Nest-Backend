@@ -15,8 +15,7 @@ export class AttendancesService {
     @InjectRepository(Attendance)
     private attendanceRepository: Repository<Attendance>, 
     @InjectRepository(Enrollment)
-    private enrollmentRepository: Repository<Enrollment>
-    
+    private enrollmentRepository: Repository<Enrollment> 
   ){}
 
   async create(createAttendanceDtos: CreateAttendanceDto[], userId: string) {
@@ -61,6 +60,63 @@ export class AttendancesService {
     }));
   }
 
+  async findManyByDateAndSubject(date: string, subjectId: string) {
+    const attendances = await this.attendanceRepository.createQueryBuilder('attendance')
+      .innerJoinAndSelect('attendance.enrollmentId', 'enrollment')
+      .innerJoinAndSelect('enrollment.subject', 'subject')
+      .innerJoinAndSelect('enrollment.student', 'student')
+      .where('attendance.createdAt = :date', { date })
+      .andWhere('subject.id = :subjectId', { subjectId })
+      .getMany();
+
+    if (attendances.length === 0) 
+      throw new NotFoundException(`Attendances not found for date ${date} and subjectId ${subjectId}`);
+    
+    try {
+      return attendances.map(attendance => ({
+        id: attendance.id,
+        attendance: attendance.attendance,
+        createdAt: attendance.createdAt,
+        creationTime: attendance.creationTime,
+        student: {
+          id: attendance.enrollmentId.student.id,
+          fullName: attendance.enrollmentId.student.fullName,
+          matricula: attendance.enrollmentId.student.matricula,
+        },
+      }));
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  async findManyBySubject(subjectId: string) {
+    const attendances = await this.attendanceRepository.createQueryBuilder('attendance')
+      .innerJoinAndSelect('attendance.enrollmentId', 'enrollment')
+      .innerJoinAndSelect('enrollment.subject', 'subject')
+      .innerJoinAndSelect('enrollment.student', 'student')
+      .where('subject.id = :subjectId', { subjectId })
+      .getMany();
+
+    if (attendances.length === 0) 
+      throw new NotFoundException(`Attendances not found for subjectId ${subjectId}`);
+    
+    try {
+      return attendances.map(attendance => ({
+        id: attendance.id,
+        attendance: attendance.attendance,
+        createdAt: attendance.createdAt,
+        creationTime: attendance.creationTime,
+        student: {
+          id: attendance.enrollmentId.student.id,
+          fullName: attendance.enrollmentId.student.fullName,
+          matricula: attendance.enrollmentId.student.matricula,
+        },
+      }));
+    } catch (error) {
+      handleDBError(error);
+    }
+}
+
   async findManyByEnrollment(enrollmentId: string) {
     
     const attendances = await this.attendanceRepository.find({
@@ -82,7 +138,17 @@ export class AttendancesService {
     } catch (error) {
       handleDBError(error);
     }
-}
+  }
+
+  async findAttendanceDates() {
+    const attendanceDates = await this.attendanceRepository.createQueryBuilder('attendance')
+      .select('attendance.createdAt')
+      .getRawMany();
+      return attendanceDates.map(attendance => {
+        const date = new Date(attendance.attendance_createdAt);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      });
+  }
 
   async findOne(id: string) {
     try{
