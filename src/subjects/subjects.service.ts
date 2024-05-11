@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { User } from '../auth/entities/user.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { handleDBError } from '../common/errors/handleDBError.errors';
+import { Partial } from '../partial/entities/partial.entity';
 
 @Injectable()
 export class SubjectsService {
@@ -14,6 +15,8 @@ export class SubjectsService {
   constructor(
     @InjectRepository(Subject)
     private subjectRepository: Repository<Subject>,
+    @InjectRepository(Partial)
+    private partialRepository: Repository<Partial>
   ) {}
 
 
@@ -56,6 +59,26 @@ export class SubjectsService {
     }
   }
 
+
+  async findPartialByPeriod(subjectId: string) {
+    try {
+
+      const period = await this.subjectRepository.createQueryBuilder('subject')
+        .innerJoinAndSelect('subject.period', 'period')
+        .where('subject.id = :subjectId', { subjectId })
+        .getOneOrFail();
+      
+      const partials = await this.partialRepository.createQueryBuilder('partial')
+        .innerJoin('partial.period', 'period')
+        .where('period.id = :periodId', { periodId: period.period.id })
+        .getMany();
+
+      return partials;
+      
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
 
   findManyByUser(userId: string) {
     // return all the subjects that belong to the user

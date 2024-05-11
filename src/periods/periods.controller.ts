@@ -19,6 +19,14 @@ export class PeriodsController {
   findAll() {
     return this.periodsService.findAll();
   }
+  
+  @Get(':id')
+  @Auth()
+  findOne(
+    @Param('id', ParseUUIDPipe ) id: string
+  ) {
+    return this.periodsService.findOne(id);
+  }
 
   @Patch(':id')
   @Auth(ValidRoles.admin)

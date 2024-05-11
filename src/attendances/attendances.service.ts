@@ -115,8 +115,9 @@ export class AttendancesService {
     } catch (error) {
       handleDBError(error);
     }
-}
+  }
 
+  // function to find attendances by student's enrollmentId
   async findManyByEnrollment(enrollmentId: string) {
     
     const attendances = await this.attendanceRepository.find({

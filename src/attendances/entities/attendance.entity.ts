@@ -1,6 +1,5 @@
 import { Enrollment } from "../../enrollments/entities/enrollment.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
-import { AttendanceStatus } from "../interfaces/attendance-status.interface";
 import { User } from "../../auth/entities/user.entity";
 
 @Entity({ name: 'attendances' })
@@ -18,12 +17,8 @@ export class Attendance {
     @JoinColumn({ name: 'enrollmentId' })
     enrollmentId: Enrollment; 
     
-    @Column({
-        type: 'enum',
-        enum: AttendanceStatus,
-        default: AttendanceStatus.ABSENT
-    })
-    attendance: string;
+    @Column('numeric')
+    attendance: number;
 
     @Column({ 
         type: 'date', 

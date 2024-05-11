@@ -44,6 +44,14 @@ export class PeriodsService {
     }
   }
 
+  async findOne(id: string) {
+    try {
+      return await this.periodRepository.findOneOrFail({ where: { id } });
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
   async update(id: string, updatePeriodDto: CreatePeriodDto) {
     try {
       await this.periodRepository.update(id, updatePeriodDto);

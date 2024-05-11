@@ -4,6 +4,7 @@ import { SubjectsController } from './subjects.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Subject } from './entities/subject.entity';
 import { AuthModule } from '../auth/auth.module';
+import { Partial } from '../partial/entities/partial.entity';
 
 @Module({
   controllers: [SubjectsController],
@@ -11,7 +12,8 @@ import { AuthModule } from '../auth/auth.module';
   imports: [ 
     AuthModule, 
     TypeOrmModule.forFeature([
-      Subject
+      Subject,
+      Partial
   ]),
 ],
   exports : [TypeOrmModule, SubjectsService]

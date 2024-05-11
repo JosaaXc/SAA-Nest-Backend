@@ -26,6 +26,13 @@ export class SubjectsController {
     return this.subjectsService.findAll( paginationDto );
   }
 
+  @Get('partial-by-subject/:subjectId')
+  findPartialByPeriod(
+    @Param('subjectId', ParseUUIDPipe ) subjectId: string
+  ) {
+    return this.subjectsService.findPartialByPeriod(subjectId);
+  }
+
   @Get('own-subjects')
   findMany(
     @GetUser() user: User

@@ -21,7 +21,7 @@ export class PartialService {
         ...createPartial, 
         period: { id: period }
       })
-      return this.partialRepository.save(partial)
+      return await this.partialRepository.save(partial)
 
     } catch (error) {
       handleDBError(error);
