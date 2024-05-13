@@ -11,7 +11,6 @@ export class Attendance {
     
     @ManyToOne(() => Enrollment, {
         eager: true,
-        
         onDelete: 'CASCADE'
     })
     @JoinColumn({ name: 'enrollmentId' })

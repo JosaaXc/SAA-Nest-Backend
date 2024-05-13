@@ -26,9 +26,11 @@ export class AttendancesController {
     return this.attendancesService.findAll( paginationDto );
   }
 
-  @Get('attendance-dates')
-  findAttendanceDates() {
-    return this.attendancesService.findAttendanceDates();
+  @Get('dates/:subjectId')
+  findAttendanceDatesBySubject(
+    @Param('subjectId') subjectId: string
+  ) {
+    return this.attendancesService.findAttendanceDatesBySubject(subjectId);
   }
 
   @Get('by-date')

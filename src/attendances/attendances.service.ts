@@ -141,14 +141,16 @@ export class AttendancesService {
     }
   }
 
-  async findAttendanceDates() {
+  async findAttendanceDatesBySubject(subjectId: string) {
     const attendanceDates = await this.attendanceRepository.createQueryBuilder('attendance')
-      .select('attendance.createdAt')
+      .innerJoinAndSelect('attendance.enrollmentId', 'enrollment')
+      .where('enrollment.subjectId = :subjectId', { subjectId })
+      .select('DISTINCT(attendance.createdAt)', 'createdAt')
       .getRawMany();
-      return attendanceDates.map(attendance => {
-        const date = new Date(attendance.attendance_createdAt);
+    return attendanceDates.map(attendance => {
+        const date = new Date(attendance.createdAt);
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-      });
+    });
   }
 
   async findOne(id: string) {
