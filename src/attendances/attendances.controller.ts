@@ -47,7 +47,11 @@ export class AttendancesController {
   ) {
     return this.attendancesService.findManyBySubject(subjectId);
   }
+
+  //TODO: Get students attendances by partial date and subject
   
+  //TODO: Get students attendances by period and subject
+
   @Get('by-enrollment/:enrollmentId')
   findManyByEnrollment(
     @Param('enrollmentId', ParseUUIDPipe) enrollmentId: string

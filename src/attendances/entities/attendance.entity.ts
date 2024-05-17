@@ -16,7 +16,11 @@ export class Attendance {
     @JoinColumn({ name: 'enrollmentId' })
     enrollmentId: Enrollment; 
     
-    @Column('numeric')
+    @Column('numeric', {
+        precision: 2,
+        scale: 1,
+        default: 0,
+    })
     attendance: number;
 
     @Column({ 
