@@ -27,7 +27,6 @@ export class StudentsService {
     return this.studentRepository.find({
       take: limit,
       skip: offset,
-      //TODO: Relaciones
     });
   }
 

@@ -46,7 +46,7 @@ export class PartialService {
       
       const partial = await this.partialRepository.findOneOrFail({ where: { id } })
       const updatedPartial = this.partialRepository.merge(partial, { ...updatePartialDto, period: { id: updatePartialDto.period } })
-      return this.partialRepository.save(updatedPartial)
+      return await this.partialRepository.save(updatedPartial)
 
     } catch (error) {
       handleDBError(error)

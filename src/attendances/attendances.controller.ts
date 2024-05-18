@@ -5,6 +5,8 @@ import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { Auth, GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/user.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { ReportPartialDto } from './dto/report-partial.dto';
+import { ReportByPeriodDto } from './dto/report-period.dto';
 
 @Controller('attendances')
 @Auth()
@@ -48,9 +50,19 @@ export class AttendancesController {
     return this.attendancesService.findManyBySubject(subjectId);
   }
 
-  //TODO: Get students attendances by partial date and subject
+  @Get('report-by-partial')
+    async generateReport(
+      @Query() { subjectId, startDate, finishDate }: ReportPartialDto
+    ) {
+        return this.attendancesService.generateAttendanceReportByPartial(subjectId, startDate, finishDate);
+  }
   
-  //TODO: Get students attendances by period and subject
+  @Get('report-by-period')
+  async generateReportByPeriod(
+    @Query() { subjectId, period }: ReportByPeriodDto
+  ) {
+    return this.attendancesService.generateAttendanceReportByPeriod(subjectId, period);
+  }
 
   @Get('by-enrollment/:enrollmentId')
   findManyByEnrollment(

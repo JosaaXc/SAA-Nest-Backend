@@ -141,6 +141,91 @@ export class AttendancesService {
     }
   }
 
+  async generateAttendanceReportByPartial(subjectId: string, startDate: string, finishDate: string) {
+    try {
+      const report = await this.attendanceRepository.createQueryBuilder('attendance')
+        .innerJoinAndSelect('attendance.enrollmentId', 'enrollment')
+        .innerJoinAndSelect('enrollment.student', 'student')
+        .innerJoinAndSelect('enrollment.subject', 'subject')
+        .where('subject.id = :subjectId', { subjectId })
+        .andWhere('attendance.createdAt BETWEEN :startDate AND :finishDate', { startDate, finishDate })
+        .getMany();
+
+      // Group the report by student
+      const groupedReport = report.reduce((acc, attendance) => {
+        if (!acc[attendance.enrollmentId.student.id]) {
+          acc[attendance.enrollmentId.student.id] = {
+            student: {
+                fullName: attendance.enrollmentId.student.fullName,
+                matricula: attendance.enrollmentId.student.matricula,
+            },
+            attendances: [],
+          };
+        }
+        acc[attendance.enrollmentId.student.id].attendances.push({
+          attendance: attendance.attendance,
+          createdAt: attendance.createdAt,
+          creationTime: attendance.creationTime,
+        });
+        return acc;
+      }, {});
+
+      // Calculate sum, total and average of attendances for each student
+      for (const studentId in groupedReport) {
+        const studentReport = groupedReport[studentId];
+        studentReport.sumAttendance = studentReport.attendances.reduce((acc, attendance) => acc + (+attendance.attendance), 0);
+        studentReport.totalAttendances = studentReport.attendances.length;
+        studentReport.averageAttendance = (studentReport.sumAttendance / studentReport.totalAttendances) * 100 + '%';
+      }
+
+      return Object.values(groupedReport);
+    } catch (error) {
+        handleDBError(error);
+    }
+  }
+
+  async generateAttendanceReportByPeriod(subjectId: string, period: string) {
+    try {
+        const report = await this.attendanceRepository.createQueryBuilder('attendance')
+            .innerJoinAndSelect('attendance.enrollmentId', 'enrollment')
+            .innerJoinAndSelect('enrollment.student', 'student')
+            .innerJoinAndSelect('enrollment.subject', 'subject')
+            .where('subject.id = :subjectId', { subjectId })
+            .andWhere('subject.period = :period', { period })
+            .getMany();
+
+        const groupedReport = report.reduce((acc, attendance) => {
+            // Create a temporary array to store the attendances for calculations
+            let attendances = acc[attendance.enrollmentId.student.id]?.attendances || [];
+            attendances.push(attendance.attendance);
+
+            acc[attendance.enrollmentId.student.id] = {
+                student: {
+                    fullName: attendance.enrollmentId.student.fullName,
+                    matricula: attendance.enrollmentId.student.matricula,
+                },
+                // Store the attendances array temporarily for calculations
+                attendances: attendances,
+            };
+            return acc;
+        }, {});
+
+        for (const studentId in groupedReport) {
+            const studentReport = groupedReport[studentId];
+            studentReport.sumAttendance = studentReport.attendances.reduce((acc, attendance) => acc + (+attendance), 0);
+            studentReport.totalAttendances = studentReport.attendances.length;
+            studentReport.averageAttendance = (studentReport.sumAttendance / studentReport.totalAttendances) * 100 + '%';
+
+            // Remove the attendances array from the final response
+            delete studentReport.attendances;
+        }
+
+        return Object.values(groupedReport);
+    } catch (error) {
+        handleDBError(error);
+    } 
+  }
+
   async findAttendanceDatesBySubject(subjectId: string) {
     const attendanceDates = await this.attendanceRepository.createQueryBuilder('attendance')
       .innerJoinAndSelect('attendance.enrollmentId', 'enrollment')

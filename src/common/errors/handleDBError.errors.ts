@@ -7,6 +7,9 @@ export function handleDBError(error: any): never {
   if (error.code === '23505') 
     throw new BadRequestException(error.detail);
 
+  if(error.code === '42703')
+    throw new BadRequestException(error.message);
+
   if (error instanceof EntityNotFoundError) 
     throw new NotFoundException('The requested resource could not be found');
   
@@ -27,7 +30,10 @@ export function handleDBError(error: any): never {
 
   if ( error.code === '22008')
     throw new BadRequestException('Invalid date format');
-  
+
+  if( error.code === '22007')
+    throw new BadRequestException( error.message );
+
   console.log(error);
   throw new InternalServerErrorException('Something went wrong');
 
