@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateAttendanceDto } from './dto/create-attendance.dto';
-import { UpdateAttendanceDto } from './dto/update-attendance.dto';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Attendance } from './entities/attendance.entity';
-import { Repository } from 'typeorm';
 import { Enrollment } from '../enrollments/entities/enrollment.entity';
 import { handleDBError } from '../common/errors/handleDBError.errors';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { CreateAttendanceDto, UpdateAttendanceDto } from './dto';
+
 
 @Injectable()
 export class AttendancesService {
@@ -14,8 +14,6 @@ export class AttendancesService {
   constructor(
     @InjectRepository(Attendance)
     private attendanceRepository: Repository<Attendance>, 
-    @InjectRepository(Enrollment)
-    private enrollmentRepository: Repository<Enrollment> 
   ){}
 
   async create(createAttendanceDtos: CreateAttendanceDto[], userId: string) {

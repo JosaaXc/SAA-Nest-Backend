@@ -1,12 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { AttendancesService } from './attendances.service';
-import { CreateAttendanceDto } from './dto/create-attendance.dto';
-import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { Auth, GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/user.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { ReportPartialDto } from './dto/report-partial.dto';
-import { ReportByPeriodDto } from './dto/report-period.dto';
+import { CreateAttendanceDto, ReportByPeriodDto, ReportPartialDto, UpdateAttendanceDto } from './dto';
 
 @Controller('attendances')
 @Auth()
@@ -54,7 +51,7 @@ export class AttendancesController {
     async generateReport(
       @Query() { subjectId, startDate, finishDate }: ReportPartialDto
     ) {
-        return this.attendancesService.generateAttendanceReportByPartial(subjectId, startDate, finishDate);
+      return this.attendancesService.generateAttendanceReportByPartial(subjectId, startDate, finishDate);
   }
   
   @Get('report-by-period')

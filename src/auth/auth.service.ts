@@ -1,16 +1,15 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto } from './dto';
+
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { JwtService, JwtSignOptions, TokenExpiredError } from '@nestjs/jwt';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { EmailService } from '../email/email.service';
 import { handleDBError } from '../common/errors/handleDBError.errors';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { CreateUserDto, EmailToChangePasswordDto, LoginUserDto, ResetPasswordDto, UpdateUserDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -108,12 +107,7 @@ export class AuthService {
   async resetPasswordToken(token: string, resetPasswordDto: ResetPasswordDto) {
     const { password } = resetPasswordDto;
 
-    let payload: JwtPayload ;
-    try {
-        payload = this.jwtService.verify(token) as JwtPayload;
-    } catch (error) {
-        handleDBError(error);
-    }
+    const payload = await this.validateToken(token);
 
     const { id } = payload;
 
@@ -122,14 +116,24 @@ export class AuthService {
       handleDBError(new BadRequestException('User not found'));
 
     try {
-        await this.userRepository.update(id, {
-            password: await bcrypt.hash(password, 10)
-        });
+      const now = new Date();
+      await this.userRepository.update(id, {
+          password: await bcrypt.hash(password, 10),
+          passwordChangedAt: new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      });
 
-        return { message: 'Password updated successfully' };
+      return { message: 'Password updated successfully' };
 
     } catch (error) {
         handleDBError(error);
+    }
+  }
+
+  async validateToken(token: string) {
+    try {
+      return await this.jwtService.verify(token);
+    } catch (error) {
+      handleDBError(error);
     }
   }
 

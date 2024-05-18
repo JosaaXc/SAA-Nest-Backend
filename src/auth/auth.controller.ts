@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetMetadata, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetMetadata, Query, Redirect } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto, EmailToChangePasswordDto, ResetPasswordDto } from './dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -31,6 +31,12 @@ export class AuthController {
     return this.authService.forgotPassword(email);
   }
 
+  @Get('reset-password/:token')
+  @Redirect('https://frontend.com/reset-password', 302)
+  async redirectToResetPassword(@Param('token') token: string) {
+    await this.authService.validateToken(token);
+    return { url: `https://frontend.com/reset-password?token=${token}` };
+  }
     
   @Post('reset-password/:token')
   public async resetPasswordToken(
