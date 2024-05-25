@@ -71,6 +71,7 @@ export class SubjectsService {
       const partials = await this.partialRepository.createQueryBuilder('partial')
         .innerJoin('partial.period', 'period')
         .where('period.id = :periodId', { periodId: period.period.id })
+        .orderBy("partial.partial", "ASC") // Order by the 'partial' field
         .getMany();
 
       return partials;

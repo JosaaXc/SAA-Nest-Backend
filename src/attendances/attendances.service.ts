@@ -211,17 +211,19 @@ export class AttendancesService {
             return acc;
         }, {});
 
+        const totalAttendances = (Object.values(groupedReport)[0] as any)?.attendances.length || 0;
+
         for (const studentId in groupedReport) {
             const studentReport = groupedReport[studentId];
             studentReport.sumAttendance = studentReport.attendances.reduce((acc, attendance) => acc + (+attendance), 0);
-            studentReport.totalAttendances = studentReport.attendances.length;
-            studentReport.averageAttendance = (studentReport.sumAttendance / studentReport.totalAttendances) * 100 + '%';
-
+            studentReport.averageAttendance = Math.floor((studentReport.sumAttendance / totalAttendances ) * 100) + '%';
             // Remove the attendances array from the final response
             delete studentReport.attendances;
         }
-
-        return Object.values(groupedReport);
+        return {
+          totalAttendances,
+          students: Object.values(groupedReport),
+        };
     } catch (error) {
         handleDBError(error);
     } 
