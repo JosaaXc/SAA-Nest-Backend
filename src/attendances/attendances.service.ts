@@ -167,16 +167,13 @@ export class AttendancesService {
         });
         return acc;
       }, {});
+      
+      const totalAttendances = (Object.values(groupedReport)[0] as any)?.attendances.length || 0;
 
-      // Calculate sum, total and average of attendances for each student
-      for (const studentId in groupedReport) {
-        const studentReport = groupedReport[studentId];
-        studentReport.sumAttendance = studentReport.attendances.reduce((acc, attendance) => acc + (+attendance.attendance), 0);
-        studentReport.totalAttendances = studentReport.attendances.length;
-        studentReport.averageAttendance = (studentReport.sumAttendance / studentReport.totalAttendances) * 100 + '%';
-      }
-
-      return Object.values(groupedReport);
+      return {
+        totalAttendances,
+        students: Object.values(groupedReport),
+      };
     } catch (error) {
         handleDBError(error);
     }
