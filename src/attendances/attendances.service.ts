@@ -170,6 +170,12 @@ export class AttendancesService {
       
       const totalAttendances = (Object.values(groupedReport)[0] as any)?.attendances.length || 0;
 
+      for (const studentId in groupedReport) {
+        const studentReport = groupedReport[studentId];
+        studentReport.sumAttendance = studentReport.attendances.reduce((acc, attendance) => acc + (+attendance.attendance), 0);
+        studentReport.averageAttendance = Math.floor((studentReport.sumAttendance / totalAttendances) * 100) + '%';
+      }
+
       return {
         totalAttendances,
         students: Object.values(groupedReport),
