@@ -4,7 +4,7 @@ export class CreateStudentDto {
 
     @IsString()
     @MinLength(3)
-    @MaxLength(30)
+    @MaxLength(50)
     fullName: string;
 
     @IsNumberString()

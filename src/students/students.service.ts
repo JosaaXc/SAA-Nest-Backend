@@ -30,6 +30,10 @@ export class StudentsService {
     });
   }
 
+  countStudents() {
+    return this.studentRepository.count();
+  }
+
   async findOne(id: string) {
     const student = await this.studentRepository.findOne({ where: { id } })
       .catch( error => handleDBError(error) )

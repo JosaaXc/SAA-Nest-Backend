@@ -167,6 +167,11 @@ export class AuthService {
     return await this.userRepository.findOne({ where: { id } });
   }
 
+  async countUsers() {
+    const totalUsers = await this.userRepository.count();
+    return { totalUsers };
+  }
+
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
     try {
       await this.userRepository.update(id, updateUserDto);

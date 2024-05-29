@@ -25,7 +25,14 @@ export class StudentsController {
   ) {
     return this.studentsService.findAll( paginationDto );
   }
-  
+
+  @Get('count-students')
+  @Auth()
+  async countStudents() {
+    const totalStudents = await this.studentsService.countStudents();
+    return { totalStudents };
+  }
+
   @Get(':id')
   @Auth()
   findOne(

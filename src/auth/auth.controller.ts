@@ -62,6 +62,12 @@ export class AuthController {
   ) {
     return this.authService.getUsers( paginationDto );
   }
+
+  @Get('users/count-users')
+  @Auth(ValidRoles.admin)
+  countUsers() {
+    return this.authService.countUsers();
+  }
   
   @Get('users/:id')
   @Auth(ValidRoles.admin)
