@@ -4,6 +4,7 @@ import { EnrollmentsController } from './enrollments.controller';
 import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Enrollment } from './entities/enrollment.entity';
+import { Student } from '../students/entities/student.entity';
 
 @Module({
   controllers: [EnrollmentsController],
@@ -11,7 +12,8 @@ import { Enrollment } from './entities/enrollment.entity';
   imports: [
     AuthModule, 
     TypeOrmModule.forFeature([
-      Enrollment
+      Enrollment,
+      Student
     ])
   ],
   exports: [TypeOrmModule, EnrollmentsService]

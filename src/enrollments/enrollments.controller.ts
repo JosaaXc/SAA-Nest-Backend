@@ -33,6 +33,13 @@ export class EnrollmentsController {
     return this.enrollmentsService.findStudentsEnrolled(subjectId);
   }
 
+  @Get('subject/:subjectId/not-enrolled')
+  findStudentsNotEnrolled(
+    @Param('subjectId', ParseUUIDPipe ) subjectId: string
+  ) {
+    return this.enrollmentsService.findStudentsNotEnrolled(subjectId);
+  }
+
   @Get(':id')
   findOne(
     @Param('id', ParseUUIDPipe ) id: string

@@ -5,6 +5,7 @@ import { EntityNotFoundError, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { handleDBError } from '../common/errors/handleDBError.errors';
 import { CreateEnrollmentDto, DeleteEnrollmentDto } from './dto';
+import { Student } from '../students/entities/student.entity';
 
 @Injectable()
 export class EnrollmentsService {
@@ -12,6 +13,8 @@ export class EnrollmentsService {
   constructor(
     @InjectRepository(Enrollment)
     private enrollmentRepository: Repository<Enrollment>,
+    @InjectRepository(Student)
+    private studentRepository: Repository<Student>
   ) {}
   
   async create(subjectId: string, createEnrollmentDtos: CreateEnrollmentDto[], userId: string) {
@@ -61,6 +64,25 @@ export class EnrollmentsService {
         enrollmentId: enrollment.id,
         ...enrollment.student,
       }));
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  async findStudentsNotEnrolled(subjectId: string) {
+    try {
+      
+      const enrollments = await this.findStudentsEnrolled(subjectId);
+      const enrolledStudentIds = enrollments.map(enrollment => enrollment.id);
+      if(enrolledStudentIds.length === 0) return await this.studentRepository.find();
+
+      const studentsNotEnrolled = await this.studentRepository
+        .createQueryBuilder('student')
+        .where('student.id NOT IN (:...enrolledStudentIds)', { enrolledStudentIds })
+        .getMany();
+
+      return studentsNotEnrolled;
+
     } catch (error) {
       handleDBError(error);
     }
