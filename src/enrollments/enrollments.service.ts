@@ -53,11 +53,15 @@ export class EnrollmentsService {
     return enrollments.map(({ studentId, subjectId, addedBy,subject, addedByUser, ...enrollment }) => enrollment);
   }
 
-  async findStudentsEnrolled(subjectId: string) {
+  async findStudentsEnrolled(subjectId: string, paginationDto:PaginationDto ) {
+     const {limit = 10, offset = 0} = paginationDto; 
+
     try {
       const enrollments = await this.enrollmentRepository.find({
         where: { subjectId },
-        relations: ['student']
+        relations: ['student'], 
+        take: limit,
+        skip: offset,
       });
 
       return enrollments.map(enrollment => ({
@@ -69,20 +73,42 @@ export class EnrollmentsService {
     }
   }
 
-  async findStudentsNotEnrolled(subjectId: string) {
+  async countStudentsEnrolled(subjectId: string) {
+    try {
+      const count = await this.enrollmentRepository.count({ where: { subjectId } });
+      return { count };
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  async findStudentsNotEnrolled(subjectId: string, paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
     try {
       
-      const enrollments = await this.findStudentsEnrolled(subjectId);
+      const enrollments = await this.findStudentsEnrolled(subjectId, paginationDto);
       const enrolledStudentIds = enrollments.map(enrollment => enrollment.id);
       if(enrolledStudentIds.length === 0) return await this.studentRepository.find();
 
       const studentsNotEnrolled = await this.studentRepository
         .createQueryBuilder('student')
         .where('student.id NOT IN (:...enrolledStudentIds)', { enrolledStudentIds })
+        .take(limit)
+        .skip(offset)
         .getMany();
 
       return studentsNotEnrolled;
 
+    } catch (error) {
+      handleDBError(error);
+    }
+  }
+
+  async countStudentsNotEnrolled(subjectId: string) {
+    try {
+      const paginationDto = { limit: 10, offset: 0 };
+      const studentsNotEnrolled = await this.findStudentsNotEnrolled(subjectId, paginationDto);
+      return { count: studentsNotEnrolled.length };
     } catch (error) {
       handleDBError(error);
     }

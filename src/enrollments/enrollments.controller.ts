@@ -28,16 +28,32 @@ export class EnrollmentsController {
 
   @Get('subject/:subjectId')
   findStudentsEnrolled(
+    @Query() paginationDto: PaginationDto,
     @Param('subjectId', ParseUUIDPipe ) subjectId: string
   ) {
-    return this.enrollmentsService.findStudentsEnrolled(subjectId);
+    return this.enrollmentsService.findStudentsEnrolled(subjectId, paginationDto);
+  }
+
+  @Get('count-students-enrolled/:subjectId')
+  countStudentsEnrolled(
+    @Param('subjectId', ParseUUIDPipe ) subjectId: string
+  ) {
+    return this.enrollmentsService.countStudentsEnrolled(subjectId);
   }
 
   @Get('subject/:subjectId/not-enrolled')
   findStudentsNotEnrolled(
+    @Query() paginationDto: PaginationDto,
     @Param('subjectId', ParseUUIDPipe ) subjectId: string
   ) {
-    return this.enrollmentsService.findStudentsNotEnrolled(subjectId);
+    return this.enrollmentsService.findStudentsNotEnrolled(subjectId, paginationDto);
+  }
+
+  @Get('count-students-not-enrolled/:subjectId')
+  countStudentsNotEnrolled(
+    @Param('subjectId', ParseUUIDPipe ) subjectId: string
+  ) {
+    return this.enrollmentsService.countStudentsNotEnrolled(subjectId);
   }
 
   @Get(':id')
