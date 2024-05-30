@@ -85,9 +85,11 @@ export class EnrollmentsService {
   async findStudentsNotEnrolled(subjectId: string, paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto;
     try {
-      
-      const enrollments = await this.findStudentsEnrolled(subjectId, paginationDto);
-      const enrolledStudentIds = enrollments.map(enrollment => enrollment.id);
+      const enrollments = await this.enrollmentRepository.find({
+        where: { subjectId },
+        select: ['studentId'],
+      });
+      const enrolledStudentIds = enrollments.map(enrollment => enrollment.studentId);
       if(enrolledStudentIds.length === 0) return await this.studentRepository.find();
 
       const studentsNotEnrolled = await this.studentRepository
