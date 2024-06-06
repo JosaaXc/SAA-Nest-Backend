@@ -9,7 +9,8 @@ export class EmailService {
 
   async sendEmailForgotPassword(user: User, token: string) {
 
-    const urltoken = `${process.env.HOST_API}/auth/reset-password/${token}`;
+    const urltoken = `$https://saa-uatx.netlify.app/#/reset-password/${token}`;
+    
 
     await this.mailerService.sendMail({
       to: user.email,
@@ -24,7 +25,7 @@ export class EmailService {
 
   async sendCredentialsToUser(user: CreateUserDto) {
 
-    const url = `${process.env.HOST_API}/auth/login`;
+    const url = `${process.env.FRONTEND_URL}/login`;
 
     await this.mailerService.sendMail({
       to: user.email,

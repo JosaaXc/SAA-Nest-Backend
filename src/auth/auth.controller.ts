@@ -11,10 +11,13 @@ import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+
+  constructor(
+    private readonly authService: AuthService
+  ) {}
 
   @Post('register')
-  // @Auth(ValidRoles.admin)
+  @Auth(ValidRoles.admin)
   createUser(@Body() createAuthDto: CreateUserDto) {
     return this.authService.create(createAuthDto);
   }
@@ -32,10 +35,10 @@ export class AuthController {
   }
 
   @Get('reset-password/:token')
-  @Redirect('https://frontend.com/reset-password', 302)
+  @Redirect(`https://saa-uatx.netlify.app/#/reset-password`, 302)
   async redirectToResetPassword(@Param('token') token: string) {
     await this.authService.validateToken(token);
-    return { url: `https://frontend.com/reset-password?token=${token}` };
+    return { url: `https://saa-uatx.netlify.app/#/reset-password?token=${token}` };
   }
     
   @Post('reset-password/:token')
