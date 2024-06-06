@@ -32,7 +32,7 @@ export class AuthService {
       });
       await this.userRepository.save(user);
       //TODO: Discomment on production
-      // await this.emailService.sendCredentialsToUser(createAuthDto);
+      await this.emailService.sendCredentialsToUser(createAuthDto);
       delete user.password;
 
       return user;
